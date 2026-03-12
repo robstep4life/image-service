@@ -8,9 +8,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
-@RequestMapping("/images")
+@RequestMapping("/api/images")
 public class ImageController {
 
     private final ImageRepository imageRepository;
@@ -21,10 +22,11 @@ public class ImageController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
-
         String uploadDir = "uploads/";
         File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
 
         String filePath = uploadDir + file.getOriginalFilename();
         file.transferTo(new File(filePath));
@@ -33,5 +35,10 @@ public class ImageController {
         imageRepository.save(image);
 
         return ResponseEntity.ok("Image uploaded successfully");
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Image>> getAllImages() {
+        return ResponseEntity.ok(imageRepository.findAll());
     }
 }
