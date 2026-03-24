@@ -39,7 +39,9 @@ public class SecurityConfigV2 {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/login", "/register").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/images/upload").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/upload").permitAll() // add this too
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -63,7 +65,13 @@ public class SecurityConfigV2 {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+
+        // Allow localhost on any dev port (5173, 4173, etc.)
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "http://127.0.0.1:*"
+        ));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
